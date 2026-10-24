@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Memdex — комикс-архив мемов</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💥</text></svg>">
+  <style>
+    /* ===== CSS-переменные ===== */
+    :root {
+      --bg: #0a0a0a;
+      --bg-soft: #141414;
+      --bg-panel: #ffffff;
+      --bg-card: #f5f5f5;
+      --bg-elevated: #ebebeb;
+
+      --text: #0a0a0a;
+      --text-inverse: #ffffff;
+      --text-muted: #6b6b6b;
+      --text-dim: #9a9a9a;
+
+      --accent: #ff6b1a;
+      --accent-2: #8ba8c4;
+      --accent-3: #ffb347;
+
+      --border: #e0e0e0;
+      --border-dark: #1a1a1a;
+
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,0.2);
+      --shadow-glow: 0 0 24px rgba(255, 107, 26, 0.35);
+
+      --transition: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      --transition-smooth: 0.3s ease;
+      --header-h: 76px;
+
+      --font-head: 'Impact', 'Arial Black', 'Helvetica Neue', sans-serif;
+      --font-body: 'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif;
+      --font-mono: 'Courier New', monospace;
+    }
+
+    /* ===== Сброс и база ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-inverse);
+      line-height: 1.5;
+      overflow-x: hidden;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
+    ul { list-style: none; }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    /* ===== Типографика ===== */
+    h1, h2, h3, h4 {
+      font-family: var(--font-head);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 0.95;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(3.5rem, 16vw, 12rem);
+      letter-spacing: -0.05em;
+      color: var(--text-inverse);
+      position: relative;
+      text-shadow: 
+        0 0 0 var(--accent),
+        3px 3px 0 var(--accent),
+        6px 6px 0 rgba(255, 107, 26, 0.4);
+      transform: scaleY(1.05);
+      transform-origin: bottom left;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 6vw, 4rem);
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    h3 {
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      letter-spacing: 0.02em;
+      font-weight: 900;
+    }
+
+    /* ===== Утилиты ===== */
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section {
+      padding: clamp(64px, 9vw, 130px) 0;
+      position: relative;
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border-radius: 24px;
+      padding: clamp(32px, 5vw, 64px);
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+      font-style: italic;
+      max-width: 500px;
+    }
+
+    /* ===== Кнопки ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 999px;
+      background: var(--bg-panel);
+      color: var(--text);
+      border: 2px solid var(--border-dark);
+      transition: all var(--transition);
+      min-height: 48px;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: var(--shadow-md);
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-3);
+      border-color: var(--accent-3);
+      color: var(--text);
+      box-shadow: 0 0 32px rgba(255, 179, 71, 0.5);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-inverse);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-panel);
+      color: var(--text);
+      border-color: var(--bg-panel);
+    }
+
+    /* ===== Шапка ===== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header-h);
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-head);
+      font-weight: 900;
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      color: var(--text-inverse);
+    }
+
+    .logo-icon {
+      font-size: 1.4em;
+      line-height: 1;
+      filter: drop-shadow(0 0 8px var(--accent));
+    }
+
+    .nav {
+      display: none;
+    }
+
+    .nav-list {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.6);
+      border-radius: 999px;
+      transition: all var(--transition-smooth);
+      min-height: 40px;
+      position: relative;
+    }
+
+    .nav-link:hover,
+    .nav-link:focus-visible {
+      color: var(--text-inverse);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .header-cta {
+      display: none;
+      padding: 10px 24px;
+      min-height: 44px;
+      font-size: 0.8rem;
+    }
+
+    .burger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      flex-shrink: 0;
+      transition: all var(--transition-smooth);
+    }
+
+    .burger:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .burger-line {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--text-inverse);
+      transition: all var(--transition-smooth);
+      border-radius: 2px;
+    }
+
+    .mobile-menu {
+      position: fixed;
+      inset: var(--header-h) 0 0 0;
+      background: var(--bg);
+      z-index: 99;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 24px;
+      gap: 8px;
+      transform: translateX(100%);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s, visibility 0.3s;
+      overflow-y: auto;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .mobile-menu.is-open {
+      transform: translateX(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-menu .nav-link {
+      font-size: 1.1rem;
+      padding: 18px 20px;
+      width: 100%;
+      justify-content: flex-start;
+      min-height: 60px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .mobile-menu .btn {
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      position: relative;
+      padding: clamp(40px, 8vw, 80px) 0 clamp(60px, 10vw, 100px);
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .hero-spark {
+      position: absolute;
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      opacity: 0.6;
+      animation: float-spark 4s infinite ease-in-out;
+      filter: drop-shadow(0 0 12px var(--accent));
+    }
+
+    .hero-spark:nth-child(1) { top: 15%; left: 8%; animation-delay: 0s; }
+    .hero-spark:nth-child(2) { top: 25%; right: 12%; animation-delay: 1s; }
+    .hero-spark:nth-child(3) { bottom: 30%; left: 15%; animation-delay: 2s; }
+    .hero-spark:nth-child(4) { top: 60%; right: 20%; animation-delay: 0.5s; }
+    .hero-spark:nth-child(5) { bottom: 15%; right: 8%; animation-delay: 1.5s; }
+
+    @keyframes float-spark {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+      50% { transform: translateY(-15px) rotate(10deg); opacity: 1; }
+    }
+
+    .hero-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-weight: 600;
+    }
+
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+      animation: dot-pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .hero h1 {
+      max-width: 100%;
+      margin: 8px 0;
+    }
+
+    .hero-characters {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: clamp(8px, 2vw, 20px);
+      margin: 8px 0 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero-char {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      filter: grayscale(1) contrast(1.2);
+      transition: all var(--transition);
+      cursor: default;
+      line-height: 1;
+    }
+
+    .hero-char:hover {
+      filter: grayscale(0) contrast(1);
+      transform: translateY(-8px) scale(1.15);
+    }
+
+    .hero-subtitle {
+      max-width: 560px;
+      color: rgba(255,255,255,0.6);
+      font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+      font-style: italic;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    /* ===== Статистика ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: clamp(24px, 4vw, 36px);
+      text-align: left;
+      transition: all var(--transition);
+      position: relative;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform var(--transition-smooth);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-card:hover::before {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+
+    .stat-icon {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+      display: block;
+      filter: grayscale(0.5);
+    }
+
+    .stat-value {
+      font-family: var(--font-head);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: clamp(0.65rem, 1.2vw, 0.75rem);
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    /* ===== Категории ===== */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .category-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: clamp(24px, 4vw, 32px) 20px;
+      text-align: center;
+      transition: all var(--transition);
+      cursor: pointer;
+      position: relative;
+      border: 2px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .category-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md), 0 0 24px rgba(255, 107, 26, 0.15);
+      background: #fff;
+    }
+
+    .category-emoji {
+      font-size: clamp(2rem, 5vw, 2.6rem);
+      display: block;
+      transition: transform var(--transition);
+      filter: grayscale(0.3);
+    }
+
+    .category-card:hover .category-emoji {
+      transform: scale(1.2) rotate(-8deg);
+      filter: grayscale(0);
+    }
+
+    .category-name {
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text);
+    }
+
+    .category-count {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== Топ мемов ===== */
+    .memes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .meme-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all var(--transition);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border: 1px solid var(--border);
+    }
+
+    .meme-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+
+    .meme-image {
+      aspect-ratio: 4 / 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(3rem, 8vw, 4.5rem);
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition);
+      background: var(--bg-elevated);
+    }
+
+    .meme-card:hover .meme-image {
+      transform: scale(1.05);
+    }
+
+    .meme-image-1 { background: linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%); }
+    .meme-image-2 { background: linear-gradient(135deg, #dcdcdc 0%, #c4c4c4 100%); }
+    .meme-image-3 { background: linear-gradient(135deg, #e0e0e0 0%, #c8c8c8 100%); }
+    .meme-image-4 { background: linear-gradient(135deg, #d8d8d8 0%, #c0c0c0 100%); }
+    .meme-image-5 { background: linear-gradient(135deg, #e4e4e4 0%, #cccccc 100%); }
+    .meme-image-6 { background: linear-gradient(135deg, #d4d4d4 0%, #bcbcbc 100%); }
+
+    .meme-image .emoji {
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+      transition: transform var(--transition);
+    }
+
+    .meme-card:hover .meme-image .emoji {
+      transform: scale(1.15) rotate(5deg);
+    }
+
+    .meme-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--transition);
+      display: block;
+    }
+
+    .meme-card:hover .meme-img {
+      transform: scale(1.08);
+    }
+
+    .meme-body {
+      padding: 20px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-grow: 1;
+    }
+
+    .meme-title {
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+      line-height: 1.35;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .meme-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .meme-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 4px 12px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .meme-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meme-likes {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meme-likes .heart {
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .meme-share {
+      font-size: 0.9rem;
+      opacity: 0.4;
+      transition: all var(--transition);
+      color: var(--accent);
+    }
+
+    .meme-card:hover .meme-share {
+      opacity: 1;
+      transform: translateX(4px);
+    }
+
+    /* ===== Как это работает ===== */
+    .steps-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: clamp(28px, 4vw, 40px);
+      position: relative;
+      transition: all var(--transition);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .step-card::before {
+      content: attr(data-step);
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      font-family: var(--font-head);
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: var(--accent);
+      opacity: 0.2;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      pointer-events: none;
+    }
+
+    .step-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent);
+    }
+
+    .step-icon {
+      font-size: 1.8rem;
+      margin-bottom: 16px;
+      display: block;
+      filter: grayscale(0.3);
+    }
+
+    .step-title {
+      font-family: var(--font-body);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text);
+    }
+
+    .step-text {
+      color: var(--text-muted);
+      font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+      line-height: 1.7;
+    }
+
+    /* ===== CTA ===== */
+    .cta-section {
+      padding: 0 24px clamp(64px, 9vw, 130px);
+    }
+
+    .cta-box {
+      position: relative;
+      background: var(--bg-panel);
+      color: var(--text);
+      padding: clamp(48px, 8vw, 96px) clamp(24px, 5vw, 64px);
+      text-align: center;
+      overflow: hidden;
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .cta-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255, 107, 26, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(139, 168, 196, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .cta-emoji {
+      position: absolute;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      opacity: 0.1;
+      pointer-events: none;
+      filter: grayscale(0.5);
+    }
+
+    .cta-emoji:nth-child(1) { top: 10px; left: 5%; transform: rotate(-15deg); }
+    .cta-emoji:nth-child(2) { bottom: 10px; right: 8%; transform: rotate(12deg); }
+    .cta-emoji:nth-child(3) { top: 40%; right: 20%; font-size: clamp(2rem, 5vw, 3rem); }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .cta-box h2 {
+      color: var(--text);
+      max-width: 640px;
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+    }
+
+    .cta-box p {
+      color: var(--text-muted);
+      max-width: 520px;
+      font-size: clamp(0.9rem, 1.8vw, 1rem);
+      font-style: italic;
+    }
+
+    .cta-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+      max-width: 520px;
+      margin-top: 8px;
+    }
+
+    .cta-input {
+      flex: 1 1 240px;
+      min-width: 0;
+      padding: 14px 24px;
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg-card);
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: var(--font-body);
+      transition: all var(--transition-smooth);
+      min-height: 48px;
+    }
+
+    .cta-input::placeholder {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .cta-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(255, 107, 26, 0.15);
+    }
+
+    .cta-form .btn {
+      flex-shrink: 0;
+    }
+
+    /* ===== Футер ===== */
+    .footer {
+      background: var(--bg);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: clamp(48px, 8vw, 80px) 0 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding-bottom: 48px;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .footer-brand .logo { font-size: 1.3rem; }
+
+    .footer-desc {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+      max-width: 300px;
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    .footer-col h4 {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+      transition: all var(--transition-smooth);
+      display: inline-block;
+      width: fit-content;
+      position: relative;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      font-size: 1.1rem;
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .social-link:hover {
+      transform: translateY(-4px) scale(1.1);
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-glow);
+    }
+
+    /* ===== Медиа-запросы ===== */
+
+    @media (min-width: 768px) {
+      .container { padding: 0 40px; }
+
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+
+      .steps-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .footer-grid {
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px;
+      }
+
+      .footer-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+      }
+
+      .section-header {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
+
+      .section-subtitle {
+        text-align: right;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .nav { display: block; }
+      .header-cta { display: inline-flex; }
+      .burger { display: none; }
+      .mobile-menu { display: none; }
+
+      .header-inner { gap: 32px; }
+
+      .hero-actions { gap: 20px; }
+    }
+
+    @media (min-width: 1440px) {
+      .container { padding: 0 48px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Шапка ===== -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="#" class="logo" aria-label="Memdex — на главную">
+        <span class="logo-icon" aria-hidden="true">💥</span>
+        <span>Memdex</span>
+      </a>
+
+      <nav class="nav" aria-label="Основная навигация">
+        <ul class="nav-list">
+          <li><a href="#" class="nav-link">Главная</a></li>
+          <li><a href="#categories" class="nav-link">Категории</a></li>
+          <li><a href="#top" class="nav-link">Топ мемов</a></li>
+          <li><a href="#about" class="nav-link">О проекте</a></li>
+        </ul>
+      </nav>
+
+      <a href="#upload" class="btn btn-primary header-cta">Загрузить мем</a>
+
+      <button class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileMenu">
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Мобильное меню -->
+  <nav class="mobile-menu" id="mobileMenu" aria-label="Мобильная навигация">
+    <a href="#" class="nav-link">Главная</a>
+    <a href="#categories" class="nav-link">Категории</a>
+    <a href="#top" class="nav-link">Топ мемов</a>
+    <a href="#about" class="nav-link">О проекте</a>
+    <a href="#upload" class="btn btn-primary">Загрузить мем</a>
+  </nav>
+
+  <main>
+
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="hero-spark">🔥</div>
+        <div class="hero-spark">✨</div>
+        <div class="hero-spark">💫</div>
+        <div class="hero-spark">⭐</div>
+        <div class="hero-spark">🔥</div>
+      </div>
+
+      <div class="container hero-inner">
+        <span class="hero-badge">
+          <span class="dot" aria-hidden="true"></span>
+          Выпуск 07 // Коллективный разум
+        </span>
+
+        <h1>
+          Memdex
+        </h1>
+
+        <div class="hero-characters" aria-hidden="true">
+          <span class="hero-char">😂</span>
+          <span class="hero-char">🐱</span>
+          <span class="hero-char">💼</span>
+          <span class="hero-char">🎮</span>
+          <span class="hero-char">🍕</span>
+          <span class="hero-char">🤡</span>
+        </div>
+
+        <p class="hero-subtitle">
+          Создаём магический мир мемов для ребёнка внутри каждого из нас.
+          Пиксельные, классические и свежие — сохраняй, делись и поднимай настроение.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#top" class="btn btn-primary">🔍 Искать мем</a>
+          <a href="#top" class="btn btn-secondary">🎲 Случайный мем</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Статистика ===== -->
+    <section class="section" aria-label="Статистика">
+      <div class="container">
+        <div class="panel">
+          <div class="section-header">
+            <div>
+              <div class="section-label">// Статистика</div>
+              <h2 class="section-title">Цифры архива</h2>
+            </div>
+            <p class="section-subtitle">Живая статистика сообщества</p>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon" aria-hidden="true">📚</span>
+              <div class="stat-value">12 480</div>
+              <div class="stat-label">Мемов</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon" aria-hidden="true">🏷️</span>
+              <div class="stat-value">24</div>
+              <div class="stat-label">Категории</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon" aria-hidden="true">👥</span>
+              <div class="stat-value">8 200</div>
+              <div class="stat-label">Пользователей</div>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon" aria-hidden="true">❤️</span>
+              <div class="stat-value">156K</div>
+              <div class="stat-label">Лайков</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Популярные категории ===== -->
+    <section class="section" id="categories" aria-labelledby="categories-title">
+      <div class="container">
+        <div class="panel">
+          <div class="section-header">
+            <div>
+              <div class="section-label">// Раздел 01</div>
+              <h2 class="section-title" id="categories-title">Популярные категории</h2>
+            </div>
+            <p class="section-subtitle">Выбери свою любимую тему</p>
+          </div>
+
+          <div class="categories-grid">
+            <div class="category-card">
+              <span class="category-emoji" aria-hidden="true">😂</span>
+              <div class="category-name">Классика</div>
+              <div class="category-count">2 340 мемов</div>
+            </div>
+            <div class="category-card">
+              <span class="category-emoji" aria-hidden="true">🐱</span>
+              <div class="category-name">Коты</div>
+              <div class="category-count">1 890 мемов</div>
+            </div>
+            <div class="category-card">
+              <span class="category-emoji" aria-hidden="true">🐶</span>
+              <div class="category-name">Собаки</div>
+              <div class="category-count">1 560 мемов</div>
+            </div>
+            <div class="category-card">
+              <span class="category-emoji" aria-hidden="true">💼</span>
+              <div class="category-name">Работа</div>
+              <div class="category-count">1 230 мемов</div>
+            </div>
+            <div class="category-card">
+              <span class="category-emoji" aria-hidden="true">🎮</span>
+              <div class="category-name">Игры</div>
+              <div class="category-count">980 мемов</div>
+            </div>
+            <div class="category-card">
+              <span class="category-emoji" aria-hidden="true">🎓</span>
+              <div class="category-name">Школа</div>
+              <div class="category-count">870 мемов</div>
+            </div>
+            <div class="category-card">
+              <span class="category-emoji" aria-hidden="true">🍕</span>
+              <div class="category-name">Еда</div>
+              <div class="category-count">760 мемов</div>
+            </div>
+            <div class="category-card">
+              <span class="category-emoji" aria-hidden="true">🤡</span>
+              <div class="category-name">Рандом</div>
+              <div class="category-count">1 420 мемов</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Топ мемов недели ===== -->
+    <section class="section" id="top" aria-labelledby="top-title">
+      <div class="container">
+        <div class="panel">
+          <div class="section-header">
+            <div>
+              <div class="section-label">// Раздел 02</div>
+              <h2 class="section-title" id="top-title">Топ мемов недели</h2>
+            </div>
+            <p class="section-subtitle">Самые залайканные мемы за 7 дней</p>
+          </div>
+
+          <div class="memes-grid">
+            <article class="meme-card">
+              <div class="meme-image meme-image-1">
+                <img
+                  src="когда пошутил как верити.jpg"
+                  alt="Верити"
+                  class="meme-img"
+                  loading="lazy"
+                >
+              </div>
+              <div class="meme-body">
+                <h3 class="meme-title">Верити</h3>
+                <div class="meme-tags">
+                  <span class="meme-tag">#верити</span>
+                  <span class="meme-tag">#мем</span>
+                </div>
+                <div class="meme-footer">
+                  <span class="meme-likes"><span class="heart" aria-hidden="true">❤️</span> 4 821</span>
+                  <span class="meme-share" aria-hidden="true">↗</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="meme-card">
+              <div class="meme-image meme-image-2">
+                <img
+                  src="Иркутск.jpg"
+                  alt="Иркутская чума"
+                  class="meme-img"
+                  loading="lazy"
+                >
+              </div>
+              <div class="meme-body">
+                <h3 class="meme-title">Иркутская чума</h3>
+                <div class="meme-tags">
+                  <span class="meme-tag">#иркутск</span>
+                  <span class="meme-tag">#чума</span>
+                </div>
+                <div class="meme-footer">
+                  <span class="meme-likes"><span class="heart" aria-hidden="true">❤️</span> 3 947</span>
+                  <span class="meme-share" aria-hidden="true">↗</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="meme-card">
+              <div class="meme-image meme-image-3">
+                <img
+                  src="mellstroy.jpg"
+                  alt="Мелстрой"
+                  class="meme-img"
+                  loading="lazy"
+                >
+              </div>
+              <div class="meme-body">
+                <h3 class="meme-title">Мелстрой</h3>
+                <div class="meme-tags">
+                  <span class="meme-tag">#мелстрой</span>
+                  <span class="meme-tag">#стройка</span>
+                </div>
+                <div class="meme-footer">
+                  <span class="meme-likes"><span class="heart" aria-hidden="true">❤️</span> 3 512</span>
+                  <span class="meme-share" aria-hidden="true">↗</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="meme-card">
+              <div class="meme-image meme-image-4">
+                <img
+                  src="Джиган.jpg"
+                  alt="Джиган"
+                  class="meme-img"
+                  loading="lazy"
+                >
+              </div>
+              <div class="meme-body">
+                <h3 class="meme-title">Джиган</h3>
+                <div class="meme-tags">
+                  <span class="meme-tag">#джиган</span>
+                  <span class="meme-tag">#рэп</span>
+                </div>
+                <div class="meme-footer">
+                  <span class="meme-likes"><span class="heart" aria-hidden="true">❤️</span> 3 128</span>
+                  <span class="meme-share" aria-hidden="true">↗</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="meme-card">
+              <div class="meme-image meme-image-5">
+                <img
+                  src="Photos_vxDL54ayds.png"
+                  alt="Ивангай"
+                  class="meme-img"
+                  loading="lazy"
+                >
+              </div>
+              <div class="meme-body">
+                <h3 class="meme-title">Ивангай</h3>
+                <div class="meme-tags">
+                  <span class="meme-tag">#ивангай</span>
+                  <span class="meme-tag">#ютуб</span>
+                </div>
+                <div class="meme-footer">
+                  <span class="meme-likes"><span class="heart" aria-hidden="true">❤️</span> 2 890</span>
+                  <span class="meme-share" aria-hidden="true">↗</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="meme-card">
+              <div class="meme-image meme-image-6">
+                <img
+                  src="старый бог.jpg"
+                  alt="Старый бог"
+                  class="meme-img"
+                  loading="lazy"
+                >
+              </div>
+              <div class="meme-body">
+                <h3 class="meme-title">Старый бог</h3>
+                <div class="meme-tags">
+                  <span class="meme-tag">#дота 2</span>
+                  <span class="meme-tag">#картинки</span>
+                </div>
+                <div class="meme-footer">
+                  <span class="meme-likes"><span class="heart" aria-hidden="true">❤️</span> 2 456</span>
+                  <span class="meme-share" aria-hidden="true">↗</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Как это работает ===== -->
+    <section class="section" id="about" aria-labelledby="how-title">
+      <div class="container">
+        <div class="panel">
+          <div class="section-header">
+            <div>
+              <div class="section-label">// Раздел 03</div>
+              <h2 class="section-title" id="how-title">Как это работает</h2>
+            </div>
+            <p class="section-subtitle">Три шага до мемного просветления</p>
+          </div>
+
+          <div class="steps-grid">
+            <div class="step-card" data-step="01">
+              <span class="step-icon" aria-hidden="true">🔍</span>
+              <h3 class="step-title">Найди мем</h3>
+              <p class="step-text">
+                Выбирай категорию или листай ленту — алгоритм подберёт мемы,
+                которые зайдут именно тебе.
+              </p>
+            </div>
+
+            <div class="step-card" data-step="02">
+              <span class="step-icon" aria-hidden="true">❤️</span>
+              <h3 class="step-title">Лайкни и сохрани</h3>
+              <p class="step-text">
+                Понравился мем? Поставь лайк, добавь в избранное или скачай —
+                чтобы потом показать друзьям.
+              </p>
+            </div>
+
+            <div class="step-card" data-step="03">
+              <span class="step-icon" aria-hidden="true">🚀</span>
+              <h3 class="step-title">Поделись с миром</h3>
+              <p class="step-text">
+                Отправляй мемы в чаты, соцсети или загружай свои —
+                становись частью мемного сообщества.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="cta-section" id="upload">
+      <div class="container">
+        <div class="cta-box">
+          <span class="cta-emoji" aria-hidden="true">💥</span>
+          <span class="cta-emoji" aria-hidden="true">✏️</span>
+          <span class="cta-emoji" aria-hidden="true">📎</span>
+
+          <div class="cta-content">
+            <h2>Присоединяйся к сообществу мемологов</h2>
+            <p>
+              Получай лучшие мемы недели на почту и загружай свои —
+              самые смешные попадут в топ!
+            </p>
+
+            <form class="cta-form" onsubmit="event.preventDefault(); this.reset();">
+              <label for="email" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Email</label>
+              <input
+                type="email"
+                id="email"
+                class="cta-input"
+                placeholder="твой@email.com"
+                required
+                autocomplete="email"
+              >
+              <button type="submit" class="btn btn-primary">Подписаться</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Футер ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo" aria-label="Memdex — на главную">
+            <span class="logo-icon" aria-hidden="true">💥</span>
+            <span>Memdex</span>
+          </a>
+          <p class="footer-desc">
+            Создаём магический мир мемов для ребёнка внутри каждого из нас.
+            Сохраняй, делись и создавай вместе с нами.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Разделы</h4>
+          <ul class="footer-links">
+            <li><a href="#">Главная</a></li>
+            <li><a href="#top">Топ мемов</a></li>
+            <li><a href="#about">О проекте</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Категории</h4>
+          <ul class="footer-links">
+            <li><a href="#categories">Классика</a></li>
+            <li><a href="#categories">Коты</a></li>
+            <li><a href="#categories">Работа</a></li>
+            <li><a href="#categories">Игры</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Соцсети</h4>
+          <div class="social-links">
+            <a href="#" class="social-link" aria-label="Telegram">✈️</a>
+            <a href="#" class="social-link" aria-label="ВКонтакте">💬</a>
+            <a href="#" class="social-link" aria-label="YouTube">▶️</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2025 Memdex. Все мемы защищены смехом.</span>
+        <span>Сделано с ❤️ и 💥</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== Минимальный JS для мобильного меню ===== -->
+  <script>
+    (function () {
+      var burger = document.getElementById('burger');
+      var menu = document.getElementById('mobileMenu');
+      var desktop = window.matchMedia('(min-width: 1024px)');
+
+      if (!burger || !menu) return;
+
+      function closeMenu() {
+        menu.classList.remove('is-open');
+        burger.setAttribute('aria-expanded', 'false');
+        burger.setAttribute('aria-label', 'Открыть меню');
+        document.body.style.overflow = '';
+      }
+
+      burger.addEventListener('click', function () {
+        var isOpen = menu.classList.toggle('is-open');
+        burger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        burger.setAttribute('aria-label', isOpen ? 'Закрыть меню' : 'Открыть меню');
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      });
+
+      menu.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', closeMenu);
+      });
+
+      // Сброс меню и разблокировка скролла при переходе на десктопную раскладку
+      function handleDesktop(e) {
+        if (e.matches) closeMenu();
+      }
+
+      if (desktop.addEventListener) {
+        desktop.addEventListener('change', handleDesktop);
+      } else if (desktop.addListener) {
+        desktop.addListener(handleDesktop); // поддержка старых Safari
+      }
+    })();
+  </script>
+
+</body>
+</html>
