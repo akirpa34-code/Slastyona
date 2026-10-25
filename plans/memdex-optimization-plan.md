@@ -140,3 +140,21 @@ Decisions:
 - User accounts, upload flow
 - Image CDN (Cloudflare R2/Imgix) and real analytics
 - Multi-page routing / static-site generator migration
+
+---
+
+## 6. Completed — quick wins (2026-10-25)
+
+Implemented directly in [`index.html`](../index.html):
+
+| Item | What was done |
+|---|---|
+| SEO/metadata | `meta description`, `theme-color`, canonical + TODO comment, Open Graph, Twitter Card, JSON-LD `WebSite` |
+| Random meme | `#randomMemeBtn` now picks a random `.meme-card`, smooth-scrolls to it and flashes it via `.flash-highlight` animation |
+| Form | Removed inline `onsubmit`; added `#subscribeForm` with regex email validation, `aria-invalid`, loading state, success/error message (`#formMessage`, `aria-live`) |
+| Contrast | `--text-muted` `#6b6b6b → #5b5b5b`, `--text-dim` `#9a9a9a → #666666` (WCAG AA on light surfaces) |
+| Mobile menu | Escape-to-close with focus return, initial focus on first menu link, explicit open/close functions |
+| Images | `width`/`height` on all 6 memes, `fetchpriority="high"` + `loading="eager"` on the LCP image, `decoding="async"` everywhere |
+| Accessibility | `.visually-hidden` utility (used for the email label), `.form-message` styles |
+
+Still open from the plan: image re-sizing/WebP/`srcset`, ASCII renames, removing `index.htm`, CSS/JS split into `assets/`, `robots.txt` + `sitemap.xml`, `transition: all` cleanup, `backdrop-filter` gating.
