@@ -613,6 +613,33 @@
       filter: grayscale(0);
     }
 
+    .category-image {
+      width: 100%;
+      height: clamp(90px, 13vw, 120px);
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      background: var(--bg-elevated);
+    }
+
+    .category-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform var(--transition), filter var(--transition);
+      filter: grayscale(0.25);
+    }
+
+    .category-image img.category-img-cat {
+      object-position: center 32%;
+    }
+
+    .category-card:hover .category-image img {
+      transform: scale(1.08);
+      filter: grayscale(0);
+    }
+
     .category-name {
       font-family: var(--font-body);
       font-weight: 800;
@@ -1279,22 +1306,30 @@
               <div class="category-count">2 340 мемов</div>
             </div>
             <div class="category-card">
-              <span class="category-emoji" aria-hidden="true">🐱</span>
+              <div class="category-image">
+                <img class="category-img-cat" src="Кошка%20-%20480x640.jpg" alt="Кот" loading="lazy">
+              </div>
               <div class="category-name">Коты</div>
               <div class="category-count">1 890 мемов</div>
             </div>
             <div class="category-card">
-              <span class="category-emoji" aria-hidden="true">🐶</span>
+              <div class="category-image">
+                <img src="Портрет%20собаки%20-%20480x640.jpg" alt="Собака" loading="lazy">
+              </div>
               <div class="category-name">Собаки</div>
               <div class="category-count">1 560 мемов</div>
             </div>
             <div class="category-card">
-              <span class="category-emoji" aria-hidden="true">💼</span>
+              <div class="category-image">
+                <img src="Руки%20на%20ноутбуке%20-%20640x427.jpg" alt="Работа за ноутбуком" loading="lazy">
+              </div>
               <div class="category-name">Работа</div>
               <div class="category-count">1 230 мемов</div>
             </div>
             <div class="category-card">
-              <span class="category-emoji" aria-hidden="true">🎮</span>
+              <div class="category-image">
+                <img src="Рулетка%20в%20казино%20-%20640x427.jpg" alt="Рулетка в казино" loading="lazy">
+              </div>
               <div class="category-name">Игры</div>
               <div class="category-count">980 мемов</div>
             </div>
