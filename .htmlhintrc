@@ -1,0 +1,17 @@
+{
+  "htmllang-require": true,
+  "meta-charset-require": true,
+  "meta-viewport-require": true,
+  "title-require": true,
+  "img-alt-require": true,
+  "tag-pair": true,
+  "tag-self-close": false,
+  "id-unique": true,
+  "src-not-empty": true,
+  "attr-no-duplication": true,
+  "attr-value-double-quotes": true,
+  "spec-char-escape": false,
+  "href-abs-or-rel": false,
+  "doctype-first": true,
+  "head-script-disabled": false
+}

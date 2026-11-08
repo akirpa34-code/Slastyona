@@ -1,0 +1,17 @@
+{
+  "name": "megakrutoy-site",
+  "version": "1.0.0",
+  "description": "Статический сайт с деплоем на GitHub Pages",
+  "private": true,
+  "scripts": {
+    "lint": "npm run lint:html && npm run lint:css",
+    "lint:html": "htmlhint \"*.html\"",
+    "lint:css": "stylelint \"*.css\"",
+    "lint:fix": "stylelint \"*.css\" --fix"
+  },
+  "devDependencies": {
+    "htmlhint": "^1.1.4",
+    "stylelint": "^16.10.0",
+    "stylelint-config-standard": "^36.0.0"
+  }
+}
